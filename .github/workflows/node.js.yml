@@ -83,16 +83,18 @@ jobs:
       - name: Dump steps context
         run: echo '${{ toJSON(steps) }}'
       - name: Build and push
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v2
         with:
           context: .
-          push: ${{ github.event_name != 'pull_request' }}
+          push: true # ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
           labels: ${{ steps.meta.outputs.labels }}
       - name: Build and push PR
         uses: docker/build-push-action@v2
+        if: github.event_name == 'pull_request'
         with:
           context: .
-          push: ${{ github.event_name == 'pull_request' }}
+          push: true # ${{ github.event_name == 'pull_request' }}
           tags: gummikr/hallo-world:pr-${{ github.event.pull_request.head.sha }}, gummikr/hallo-world:pr-${{ steps.pr_short_sha.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
