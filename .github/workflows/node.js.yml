@@ -82,10 +82,12 @@ jobs:
         run: echo "::set-output name=sha_short::$(echo ${PR_SHA} | head -c 7)"
       - name: Testing short sha
         run: echo ${{ steps.pr_short_sha.sha_short }}
+      - name: Dump steps context
+        run: echo '${{ toJSON(steps) }}'
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true # ${{ github.event_name != 'pull_request' }}
-          tags: ${{ github.event.pull_request.head.sha }}, ${{ steps.pr_short_sha.sha_short }}
+          tags: ${{ steps.meta.outputs.tags }}, ${{ github.event.pull_request.head.sha }}, ${{ steps.pr_short_sha.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
