@@ -74,10 +74,16 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Get Pull Request short_sha
+        id: pr_short_sha
+        if: github.event_name = 'pull_request'
+        env:
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "::set-output name=sha_short::$(echo ${PR_SHA} | head -c 7)"
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
           context: .
           push: true # ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.meta.outputs.tags }}
-          labels: ${{ steps.meta.outputs.labels }}, {{ github.event.pull_request.head.sha }}
+          tags: ${{ github.event.pull_request.head.sha }}, ${{ steps.pr_short_sha.sha_short }}
+          labels: ${{ steps.meta.outputs.labels }}
