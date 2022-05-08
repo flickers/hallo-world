@@ -12,6 +12,7 @@ COPY package.json package.json
 
 USER node
 
+RUN npm cache verify
 RUN npm install --production
 
 COPY --chown=node:node .next .next
