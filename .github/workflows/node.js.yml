@@ -80,6 +80,8 @@ jobs:
         env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: echo "::set-output name=sha_short::$(echo ${PR_SHA} | head -c 7)"
+      - name: Testing short sha
+        run: echo ${{ steps.pr_short_sha.sha_short }}
       - name: Build and push
         uses: docker/build-push-action@v2
         with:
