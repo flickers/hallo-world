@@ -76,7 +76,7 @@ jobs:
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Get Pull Request short_sha
         id: pr_short_sha
-        if: github.event_name = 'pull_request'
+        if: github.event_name == 'pull_request'
         env:
           PR_SHA: ${{ github.event.pull_request.head.sha }}
         run: echo "::set-output name=sha_short::$(echo ${PR_SHA} | head -c 7)"
