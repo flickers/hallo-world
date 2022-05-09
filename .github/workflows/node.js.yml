@@ -83,6 +83,7 @@ jobs:
       - name: Dump steps context
         run: echo '${{ toJSON(steps) }}'
       - name: Build and push
+        if: github.event_name != 'pull_request'
         uses: docker/build-push-action@v3
         with:
           context: .
