@@ -39,6 +39,10 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v3
+      - name: Dump GitHub context
+        env:
+          GITHUB_CONTEXT: ${{ toJSON(github) }}
+        run: echo "$GITHUB_CONTEXT"
       - name: Download next build       # Download the above uploaded artifact
         uses: actions/download-artifact@v3
         with:
@@ -70,10 +74,26 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Get Pull Request short_sha
+        id: pr_short_sha
+        if: github.event_name == 'pull_request'
+        env:
+          PR_SHA: ${{ github.event.pull_request.head.sha }}
+        run: echo "::set-output name=sha_short::$(echo ${PR_SHA} | head -c 7)"
+      - name: Dump steps context
+        run: echo '${{ toJSON(steps) }}'
       - name: Build and push
         uses: docker/build-push-action@v3
         with:
           context: .
           push: true # ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+      - name: Build and push PR
+        uses: docker/build-push-action@v3
+        if: github.event_name == 'pull_request'
+        with:
+          context: .
+          push: true # ${{ github.event_name == 'pull_request' }}
+          tags: gummikr/hallo-world:pr-${{ github.event.pull_request.head.sha }}, gummikr/hallo-world:pr-${{ steps.pr_short_sha.outputs.sha_short }}
           labels: ${{ steps.meta.outputs.labels }}
